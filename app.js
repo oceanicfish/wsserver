@@ -1,6 +1,6 @@
 const http = require("http");
 
-const host = '44.203.88.169';
+const host = 'localhost';
 const port = 9999;
 
 const requestListener = function (req, res) {};
