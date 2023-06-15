@@ -9,9 +9,11 @@ echo.on('connection', function(conn) {
     console.log('[wsserver] Client ' + conn.id + ' connected.');
     conn.write('[wsserver] Client ' + conn.id + ' connected.');
     conn.on('data', function(message) {
+        console.log('[wsserver] Message ' + message);
         if (message == 'console_cmd_play') {
             for(key in clients) {
                 if(clients.hasOwnProperty(key)) {
+                    console.log('[wsserver] Sending message [' + message + '] to ' + clients[key]);
                     clients[key].write('cmd_play');
                 }
             }
