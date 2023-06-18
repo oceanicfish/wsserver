@@ -1,31 +1,31 @@
+// import { createServer } from 'https';
+// import { readFileSync } from 'fs';
+// import { WebSocketServer } from 'ws';
+
+// var https = require('https');
 var http = require('http');
-var sockjs = require('sockjs');
+var fs = require('fs');
+var ws = require('ws');
 
-const DEBUG = false;
+// const server = https.createServer({
+//   cert: fs.readFileSync('/etc/letsencrypt/live/fp276e134c.tkye313.ap.nuro.jp/fullchain.pem'),
+//   key: fs.readFileSync('/etc/letsencrypt/live/fp276e134c.tkye313.ap.nuro.jp/privkey.pem')
+// });
+// const server = https.createServer({
+//   cert: fs.readFileSync('keys/fullchain.pem'),
+//   key: fs.readFileSync('keys/privkey.pem')
+// });
+const server = http.createServer();
+const wss = new ws.WebSocketServer({ server });
 
-var echo = sockjs.createServer({ sockjs_url: 'http://cdn.jsdelivr.net/sockjs/1.0.1/sockjs.min.js' });
-var clients = [];
+wss.on('connection', function connection(ws) {
+  ws.on('error', console.error);
 
-echo.on('connection', function(conn) {
-    clients[conn.id] = conn;
-    DEBUG && console.log('[wsserver] Client ' + conn.id + ' connected.');
-    conn.write('[wsserver] Client ' + conn.id + ' connected.');
-    conn.on('data', function(message) {
-        DEBUG && console.log('[wsserver] Message ' + message);
-        if (message == 'console_cmd_play') {
-            for(key in clients) {
-                if(clients.hasOwnProperty(key)) {
-                    DEBUG && console.log('[wsserver] Sending message [' + message + '] to ' + clients[key]);
-                    clients[key].write('cmd_play');
-                }
-            }
-        }
-    });
-    conn.on('close', function() {
-        delete clients[conn.id];
-    });
+  ws.on('message', function message(data) {
+    console.log('received: %s', data);
+  });
+
+  ws.send('something');
 });
 
-var server = http.createServer();
-echo.installHandlers(server, {prefix:'/tv'});
-server.listen(9999, '0.0.0.0');
+server.listen(9999);
