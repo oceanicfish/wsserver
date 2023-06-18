@@ -1,31 +1,38 @@
-// import { createServer } from 'https';
-// import { readFileSync } from 'fs';
-// import { WebSocketServer } from 'ws';
-
-var https = require('https');
 // var http = require('http');
+var https = require('https');
 var fs = require('fs');
-var ws = require('ws');
+var sockjs = require('sockjs');
 
-const server = https.createServer({
-  cert: fs.readFileSync('/etc/pki/tls/certs/apache-selfsigned.crt'),
-  key: fs.readFileSync('/etc/pki/tls/private/apache-selfsigned.key')
+const DEBUG = false;
+
+var ws = sockjs.createServer({ sockjs_url: 'http://cdn.jsdelivr.net/sockjs/1.0.1/sockjs.min.js' });
+var clients = [];
+
+ws.on('connection', function(conn) {
+    clients[conn.id] = conn;
+    DEBUG && console.log('[wsserver] Client ' + conn.id + ' connected.');
+    conn.write('[wsserver] Client ' + conn.id + ' connected.');
+    conn.on('data', function(message) {
+        DEBUG && console.log('[wsserver] Message ' + message);
+        if (message == 'console_cmd_play') {
+            for(key in clients) {
+                if(clients.hasOwnProperty(key)) {
+                    DEBUG && console.log('[wsserver] Sending message [' + message + '] to ' + clients[key]);
+                    clients[key].write('cmd_play');
+                }
+            }
+        }
+    });
+    conn.on('close', function() {
+        delete clients[conn.id];
+    });
 });
-// const server = https.createServer({
-//   cert: fs.readFileSync('keys/fullchain.pem'),
-//   key: fs.readFileSync('keys/privkey.pem')
-// });
-// const server = http.createServer();
-const wss = new ws.WebSocketServer({ server });
 
-wss.on('connection', function connection(ws) {
-  ws.on('error', console.error);
-
-  ws.on('message', function message(data) {
-    console.log('received: %s', data);
-  });
-
-  ws.send('something');
-});
-
-server.listen(9999);
+// var server = http.createServer();
+var options = {
+    cert: fs.readFileSync('/etc/pki/tls/certs/apache-selfsigned.crt'),
+    key: fs.readFileSync('/etc/pki/tls/private/apache-selfsigned.key')
+};
+var server = https.createServer(options);
+ws.installHandlers(server, {prefix:'/tv'});
+server.listen(9999, '0.0.0.0');
