@@ -4,6 +4,8 @@ var fs = require('fs');
 var sockjs = require('sockjs');
 
 const DEBUG = false;
+const PLAYER_PREFIX = 'PLAYER_PREFIX';
+const SERVER_PREFIX = 'SERVER_PREFIX';
 
 var ws = sockjs.createServer({ sockjs_url: 'https://cdn.jsdelivr.net/sockjs/1.0.1/sockjs.min.js' });
 var clients = [];
@@ -21,6 +23,9 @@ ws.on('connection', function(conn) {
                     clients[key].write('cmd_play');
                 }
             }
+        }
+        if (message.startsWith(PLAYER_PREFIX)){
+            clients[key].write(SERVER_PREFIX + message.substring(PLAYER_PREFIX.length));
         }
     });
     conn.on('close', function() {
