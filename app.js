@@ -6,6 +6,7 @@ var sockjs = require('sockjs');
 const DEBUG = false;
 const PLAYER_PREFIX = 'PLAYER_PREFIX';
 const SERVER_PREFIX = 'SERVER_PREFIX';
+const CONSOLE_PREFIX = 'console_';
 
 var ws = sockjs.createServer({ sockjs_url: 'https://cdn.jsdelivr.net/sockjs/1.0.1/sockjs.min.js' });
 var clients = [];
@@ -16,11 +17,11 @@ ws.on('connection', function(conn) {
     conn.write('[wsserver] Client ' + conn.id + ' connected.');
     conn.on('data', function(message) {
         DEBUG && console.log('[wsserver] Message ' + message);
-        if (message == 'console_cmd_play') {
+        if (message.startsWith(CONSOLE_PREFIX)) {
             for(key in clients) {
                 if(clients.hasOwnProperty(key)) {
                     DEBUG && console.log('[wsserver] Sending message [' + message + '] to ' + clients[key]);
-                    clients[key].write('cmd_play');
+                    clients[key].write(message.substring(CONSOLE_PREFIX.length));
                 }
             }
         }
