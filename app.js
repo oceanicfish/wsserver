@@ -5,7 +5,7 @@ var sockjs = require('sockjs');
 
 const DEBUG = false;
 
-var ws = sockjs.createServer({ sockjs_url: 'http://cdn.jsdelivr.net/sockjs/1.0.1/sockjs.min.js' });
+var ws = sockjs.createServer({ sockjs_url: 'https://cdn.jsdelivr.net/sockjs/1.0.1/sockjs.min.js' });
 var clients = [];
 
 ws.on('connection', function(conn) {
@@ -30,8 +30,8 @@ ws.on('connection', function(conn) {
 
 // var server = http.createServer();
 var options = {
-    cert: fs.readFileSync('/etc/pki/tls/certs/apache-selfsigned.crt'),
-    key: fs.readFileSync('/etc/pki/tls/private/apache-selfsigned.key')
+    cert: fs.readFileSync('/etc/ssl/certificate.crt'),
+    key: fs.readFileSync('/etc/ssl/private/private.key')
 };
 var server = https.createServer(options);
 ws.installHandlers(server, {prefix:'/tv'});
