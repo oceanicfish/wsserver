@@ -25,7 +25,12 @@ ws.on('connection', function(conn) {
             }
         }
         if (message.startsWith(PLAYER_PREFIX)){
-            clients[key].write(SERVER_PREFIX + message.substring(PLAYER_PREFIX.length));
+            for(key in clients) {
+                if(clients.hasOwnProperty(key)) {
+                    DEBUG && console.log('[wsserver] Sending message [' + message.substring(PLAYER_PREFIX.length) + '] to ' + clients[key]);
+                    clients[key].write(SERVER_PREFIX + message.substring(PLAYER_PREFIX.length));
+                }
+            }
         }
     });
     conn.on('close', function() {
